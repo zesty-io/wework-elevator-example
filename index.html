@@ -1,0 +1,158 @@
+<html>
+    <head>
+
+    </head>
+    <body>
+        <style>
+            body, html {
+                padding: 0px;
+                margin: 0px;
+                font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+
+            }
+
+            .companies {
+                position: fixed;
+                overflow: hidden;
+                top: 0px;
+                bottom: 0px;
+                left: 0px;
+                right: 0px;
+                background-color: black;
+                background-image: url(https://images.ctfassets.net/e4m0suk6oqie/16UOVXJ7fwcEGIguEg6yqs/ee86ad14fff1f3c536c021835411d168/welogo_white.png);
+                background-size: 50%;
+                background-repeat: no-repeat;
+                background-position: center center;
+
+            }
+
+            .companies > div {
+                position: absolute;
+                z-index: 1;
+                background: white;
+                top: 0px;
+                left: 0px;
+                width: 100%;
+                height: 100%;
+                transition: left 2s;
+            }
+
+            .companies div.sendright {
+                left: 100%;
+            }
+
+            .companies div.right{
+                height: 100%;
+                width: 40%;
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-position: top center;
+                float:left;
+                background-color: grey;
+
+            }
+
+            .companies .container {
+                padding: 100px;
+                
+            }
+            .container h1 {
+                font-size: 36px;
+                font-weight: 800;
+            }
+            .container p {
+                text-align: left;
+                font-size: 22px;
+                line-height: 28px;
+                font-weight: 400;
+            }
+            .companies div.left{
+                height: 100%;
+                width: 60%;
+                float:left;
+                background-color: white;
+                border-top: 20px white solid;
+            }
+
+            .companies .logo {
+                background-size: contain;
+                height: 200px;
+                width: 200px;
+            }
+
+ 
+        </style>
+        <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
+
+        <div class="companies"></div>        
+
+        <script type="application/javascript">
+
+            let companies = document.querySelector('.companies')
+            
+            async function getResults(){
+              let endpoint = "https://meetupwework.zesty.dev/-/instant/6-faee919add-rp5gbb.json";
+              let results =  await fetch(endpoint).catch(err =>
+                  {
+                      return localStorage.results
+                  }
+              )
+              let res = await results.json();
+              localStorage.setItem('',res)
+
+              return localStorage.results
+            }          
+            
+            getResults().then(results => {
+                let i = 0
+
+                results.data.forEach(content => {
+                    i++;
+                    let company = document.createElement('div')
+                    company.setAttribute("style", "z-index:" + (results.data.length - i ) );
+                    let left = document.createElement('div')
+                    let right = document.createElement('div')
+                    company.appendChild(left)
+                    left.classList.add('left')
+                    left.setAttribute("style", "border-top-color:" + content.content.company_color );
+
+                    left.innerHTML = `
+                        <div class="container">
+                        <div class="logo" style="background-image: url('${content.content.company_logo.data[0].url}')"></div>
+                        <h1>${content.content.company_name}</h1>
+                        ${content.content.company_description}
+                        <a href="${content.content.company_website}">${content.content.company_website}</a>
+                        </div>
+                    ` 
+                    company.appendChild(right)
+                    right.classList.add('right')
+                    right.setAttribute("style", "background-image: url('" + content.content.company_image.data[0].url + "')" );
+
+                    companies.appendChild(company)
+                
+              })
+
+              setInterval(slide, 2000);
+            })
+            
+            let iterations = 0
+            let maxIterations = 1000
+
+            function slide () {
+                let exists = document.querySelector('.companies div:not(.sendright)') !== null
+
+                if(exists){
+                    console.log('moving')
+                    let company = document.querySelector('.companies div:not(.sendright)')
+                    company.classList.add('sendright')
+                } else {
+                    console.log('clearing')
+                    document.querySelectorAll('.companies div').forEach(company => {
+                        company.classList.remove('sendright')
+                    })
+                }
+                if(iteration == maxIterations) location.reload();
+            }
+            </script>
+    </body>
+</html>
